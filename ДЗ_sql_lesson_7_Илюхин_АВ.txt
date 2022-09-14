@@ -1,0 +1,68 @@
+--colab/jupyter: https://colab.research.google.com/drive/1j4XdGIU__NYPVpv74vQa9HUOAkxsgUez?usp=sharing
+
+--task1  (lesson7)
+-- sqlite3: Сделать тестовый проект с БД (sqlite3, project name: task1_7). В таблицу table1 записать 1000 строк с случайными значениями (3 колонки, тип int) от 0 до 1000.
+-- Далее построить гистаграмму распределения этих трех колонок
+
+request = "CREATE TABLE test1 (id INTEGER PRIMARY KEY NOT NULL, x REAL NOT NULL, y REAL NOT NULL, z REAL NOT NULL)"
+c.execute(request)
+
+request = """
+INSERT INTO test1
+    WITH RECURSIVE
+      cnt( id, x, y, z) AS (
+      VALUES(1 , abs(random() % 1000), abs(random() % 100), abs(random() % 1000)) UNION ALL 
+      SELECT id+1,abs(random() % 1000),abs(random() % 1000), abs(random() % 1000) FROM cnt WHERE ID<1000)
+    select * from cnt;
+"""
+c.execute(request)    
+
+request = """
+select * from test1
+"""
+
+df = pd.read_sql_query(request, conn)
+
+df = pd.read_sql_query(request, conn)
+fig = px.histogram(x=df['x'].to_list())
+fig.show()
+
+fig = px.histogram(x=df['y'].to_list())
+fig.show()
+
+fig = px.histogram(x=df['z'].to_list())
+fig.show()
+
+--task2  (lesson7)
+-- oracle: https://leetcode.com/problems/duplicate-emails/
+
+select Email
+from Person
+group by Email
+having count (Email)> 1
+
+--task3  (lesson7)
+-- oracle: https://leetcode.com/problems/employees-earning-more-than-their-managers/
+#при выборе Oracle - Runtime error, при выборе MySQL/My SQL Server - Accepted
+
+select a.name Employee
+from Employee as  a, Employee as b
+where a.managerid = b.id and a.salary > b.salary
+
+
+--task4  (lesson7)
+-- oracle: https://leetcode.com/problems/rank-scores/
+#при выборе Oracle - Runtime error, при выборе MySQL/My SQL Server - Accepted
+
+select score,
+dense_rank() over (order by score desc)  'rank'
+from scores
+
+
+--task5  (lesson7)
+-- oracle: https://leetcode.com/problems/combine-two-tables/
+
+select firstName, lastName, city, state
+from Person p
+left join Address a on p.personId = a.personId
+order by firstName
