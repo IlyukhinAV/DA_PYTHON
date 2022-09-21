@@ -1,0 +1,149 @@
+--task1  (lesson8)
+-- oracle: https://leetcode.com/problems/department-top-three-salaries/
+
+SELECT Department, Employee, Salary
+FROM (
+SELECT Department.name Department, Employee.name Employee, Salary,
+    dense_rank() over (partition by Department.name order by Salary desc) rnk
+FROM Employee
+left join Department on Employee.departmentId = Department.id    
+) Ranked
+WHERE rnk <= 3;
+
+--task2  (lesson8)
+-- https://sql-academy.org/ru/trainer/tasks/17
+
+SELECT fm.member_name, fm.status, 
+sum(p.amount*p.unit_price) as costs 
+FROM Payments p
+left join FamilyMembers fm 
+on fm.member_id = p.family_member
+WHERE year(p.date) = '2005'
+GROUP BY p.family_member
+
+--task3  (lesson8)
+-- https://sql-academy.org/ru/trainer/tasks/13
+select name
+FROM Passenger
+group by name 
+having count (name) > 1
+
+
+--task4  (lesson8)
+-- https://sql-academy.org/ru/trainer/tasks/38
+select count (*) count
+from Student
+where first_name ='Anna'
+group by first_name
+
+
+--task5  (lesson8)
+-- https://sql-academy.org/ru/trainer/tasks/35
+
+select DISTINCT count(class) count
+from Schedule
+where date like '2019-09-02%'
+
+--task6  (lesson8)
+-- https://sql-academy.org/ru/trainer/tasks/38
+-- повтор
+select count (*) count
+from Student
+where first_name ='Anna'
+group by first_name
+
+
+--task7  (lesson8)
+-- https://sql-academy.org/ru/trainer/tasks/32
+
+SELECT floor(avg(2022 - year(FamilyMembers.birthday))) as age
+from FamilyMembers
+
+
+--task8  (lesson8)
+-- https://sql-academy.org/ru/trainer/tasks/27
+
+SELECT good_type_name, 
+sum(p.amount*p.unit_price) as costs 
+FROM Payments p
+join Goods g on g.good_id = p.good
+join GoodTypes gt on g.type = gt.good_type_id
+WHERE year(p.date) = '2005'
+GROUP BY good_type_name
+order by costs
+
+
+
+--task9  (lesson8)
+-- https://sql-academy.org/ru/trainer/tasks/37
+
+select min(timestampdiff(year, birthday, current_date)) as year
+from student
+
+--task10  (lesson8)
+-- https://sql-academy.org/ru/trainer/tasks/44
+
+select max(timestampdiff(year, birthday, current_date)) as max_year
+FROM (
+select birthday  
+from Student_in_class s
+join Class on class.id = s.class
+join Student on s.student = Student.id 
+where name like '%10%'
+) a
+
+
+--task11 (lesson8)
+-- https://sql-academy.org/ru/trainer/tasks/20
+SELECT status, member_name, sum(p.amount*p.unit_price) as costs 
+FROM Payments p
+join Goods g on g.good_id = p.good
+join GoodTypes gt on g.type = gt.good_type_id
+join FamilyMembers fm on fm.member_id = p.family_member
+WHERE good_type_name = 'entertainment'
+GROUP BY status, member_name
+
+--task12  (lesson8)
+-- https://sql-academy.org/ru/trainer/tasks/55
+
+delete from Company where id  in(
+select company
+from(
+select company, count(*),
+dense_rank() over (order by count(*)) rnk
+from Trip
+group by company
+)a
+where rnk = 1
+)
+
+--task13  (lesson8)
+-- https://sql-academy.org/ru/trainer/tasks/45
+
+select classroom from (
+select classroom, count,
+dense_rank() over (order by count desc) rnk
+from 
+(
+select classroom, count(*) as count
+from Schedule
+group by classroom
+order by count(*) DESC) a
+group by classroom)b
+where rnk = 1
+
+
+--task14  (lesson8)
+-- https://sql-academy.org/ru/trainer/tasks/43
+select last_name FROM Schedule s
+JOIN Teacher t on t.id = s.teacher
+JOIN Subject sj on sj.id=s.subject
+where name like'Physical Culture'
+order by last_name
+
+
+--task15  (lesson8)
+-- https://sql-academy.org/ru/trainer/tasks/63
+SELECT CONCAT(last_name,'.', LEFT(first_name, 1),'.', LEFT(middle_name, 1),'.') as name
+from Student
+order by name
